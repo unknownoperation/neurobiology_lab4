@@ -3,12 +3,7 @@ import numpy as np
 from snn import SNN
 
 
-if __name__ == "__main__":
-    lam = 25
-
-    input_layer_size = 30
-    T = 100
-
+def generate_input(T, input_layer_size):
     input_pattern = np.zeros((T, input_layer_size))
     for i in range(input_layer_size):
         j = -1
@@ -17,14 +12,21 @@ if __name__ == "__main__":
             if j >= T:
                 break
             input_pattern[j, i] = 1
+    return input_pattern
 
-    print(input_pattern)
 
-    snn1 = SNN(input_layer_size, 40, 50, 2)
+if __name__ == "__main__":
+    lam = 25
+
+    input_layer_size = 5
+    T = 100
+
+    input_pattern = generate_input(T, input_layer_size)
 
     epoch_cnt = 5
+    snn1 = SNN(input_layer_size, 10, 20, 2, u_spike=0.3, T_max=T * epoch_cnt)
     for epoch in range(epoch_cnt):
         for tt in range(T):
             snn1.apply(input_pattern[tt], epoch * T + tt)
 
-    snn1.visualize_u(T * epoch_cnt)
+    snn1.visualize_most_spiking_u()
