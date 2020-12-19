@@ -1,6 +1,10 @@
-## Спайки первого выходного нейрона
-![example](https://raw.githubusercontent.com/unknownoperation/neurobiology_lab4/master/res/output1.png)
+# 1 задание
+## Спайки для первого скрытого слоя
+![example](https://raw.githubusercontent.com/unknownoperation/neurobiology_lab4/master/res/most_spiking_neuron_hidden_layer1.png)
 
-## Спайки второго выходного нейрона
-![example](https://raw.githubusercontent.com/unknownoperation/neurobiology_lab4/master/res/output2.png)
+## Спайки для второго скрытого слоя
+![example](https://raw.githubusercontent.com/unknownoperation/neurobiology_lab4/master/res/most_spiking_neuron_hidden_layer2.png)
+
+## Спайки для выходного слоя
+![example](https://raw.githubusercontent.com/unknownoperation/neurobiology_lab4/master/res/most_spiking_neuron_output_layer.png)
 
