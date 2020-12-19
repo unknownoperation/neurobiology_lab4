@@ -95,21 +95,28 @@ class SNN:
             'output layer'
         )
 
+        fig, (ax1, ax2, ax3, ax4, ax5, ax6) = plt.subplots(6, 1, figsize=(30, 60))
+        ax_tuple = (
+            (ax1, ax2),
+            (ax3, ax4),
+            (ax5, ax6)
+        )
+
         for layer_index, spike_matrix in enumerate((self.spike_matrix1, self.spike_matrix2, self.spike_matrix3)):
-            fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(30, 10))
+            ax_inner1, ax_inner2 = ax_tuple[layer_index]
             spikes_count = np.sum(spike_matrix, axis=1)
             
             most_spiking_neuron_i = np.argmax(np.sum(spike_matrix, axis=0))
             u = u_matrix_tuple[layer_index]
 
             tim = np.arange(self.T_max)
-            make_plot(ax1, tim, u[:self.T_max, most_spiking_neuron_i], color='g',
+            make_plot(ax_inner1, tim, u[:self.T_max, most_spiking_neuron_i], color='g',
                       label='u(t) for most spiking neuron with index {} from {})'.format(most_spiking_neuron_i,
                                                                                        layer_names_tuple[layer_index]),
                       xlabel='time', ylabel='u')
-            make_plot(ax2, tim, spikes_count[:self.T_max], color='b',
+            make_plot(ax_inner2, tim, spikes_count[:self.T_max], color='b',
                       label='number of spikes in time for {}'.format(layer_names_tuple[layer_index]),
                       xlabel='time', ylabel='num spikes')
 
-            plt.show()
-            plt.close()
+        plt.show()
+        plt.close()
