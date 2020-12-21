@@ -22,6 +22,15 @@ def eta(s):
     return -nu * np.exp(-s / tau) * (1 if s > 0 else 0)
 
 
+def convert_output_spikes_to_class_label(output):
+    assert np.sum(output) == 1
+    return np.argmax(output)
+
+
+def is_target_spiking(output, target):
+    return output[target] == 1
+
+
 class SNN:
     def __init__(self, input_layer_size, hidden_size1, hidden_size2, output_size, u_spike=0.3, T_max=1000):
         self.input_size = input_layer_size
@@ -37,9 +46,9 @@ class SNN:
         self.d2 = np.random.randint(low=1, high=7, size=(hidden_size1, hidden_size2))
         self.d3 = np.random.randint(low=1, high=7, size=(hidden_size2, output_size))
 
-        self.w1 = np.random.random((input_layer_size, hidden_size1))
-        self.w2 = np.random.random((hidden_size1, hidden_size2))
-        self.w3 = np.random.random((hidden_size2, output_size))
+        self.w1 = 0.00001 + np.random.random((input_layer_size, hidden_size1))
+        self.w2 = 0.00001 + np.random.random((hidden_size1, hidden_size2))
+        self.w3 = 0.00001 + np.random.random((hidden_size2, output_size))
 
         self.u1 = np.zeros((T_max, hidden_size1))
         self.u2 = np.zeros((T_max, hidden_size2))
@@ -54,8 +63,13 @@ class SNN:
         self.spike_matrix2 = np.zeros((T_max, hidden_size2))
         self.spike_matrix3 = np.zeros((T_max, output_size))
 
+        self.reward = np.ones(T_max)
+
         self.u_spike = u_spike
         self.T_max = T_max
+
+        self.dts = []
+        self.dws = []
 
     def apply(self, input_layer, t):
         def apply_inner_layer(input_size, output_size, prev_t_n, prev_t_n_1, u, w, d, spike_matrix):
@@ -82,6 +96,45 @@ class SNN:
         apply_inner_layer(self.hidden_size2, self.output_size,
                           self.prev_t_2, self.prev_t_3,
                           self.u3, self.w3, self.d3, self.spike_matrix3)
+
+    def STDP(self, w_min, w_max, taup, taun, nup, nun, t, is_visualize=False):
+        def STDP_inner_layer(input_size, output_size, prev_t_n, prev_t_n_1, w):
+            for i in range(input_size):
+                for j in range(output_size):
+                    d_t = prev_t_n_1[j] - prev_t_n[i]
+                    if d_t >= 0:
+                        dw = (w_max -w[i, j]) * nup * np.exp(-d_t / taup)
+                    else:
+                        dw = -(w[i, j] - w_min) * nun * np.exp(d_t / taun)
+
+                    w[i, j] += dw * self.reward[t]
+                    if is_visualize:
+                        self.dts.append(d_t)
+                        self.dws.append(dw)
+
+        STDP_inner_layer(self.input_size, self.hidden_size1, self.prev_t_0, self.prev_t_1, self.w1)
+        STDP_inner_layer(self.hidden_size1, self.hidden_size2, self.prev_t_1, self.prev_t_2, self.w2)
+        STDP_inner_layer(self.hidden_size2, self.output_size, self.prev_t_2, self.prev_t_3, self.w3)
+
+    def calculate_reward(self, t, target, base_reward=1.2, steps_to_one=10):
+        output_spikes = self.spike_matrix3[t]
+        if is_target_spiking(output_spikes, target):
+            self.reward[t] = base_reward
+            return
+        if t > 0 and self.reward[t - 1] > 1.0:
+            self.reward[t] = self.reward[t - 1] - (base_reward - 1.0) / steps_to_one
+
+    def get_pred_label(self, t):
+        output_spikes = self.spike_matrix3[t]
+        if np.sum(output_spikes) == 1:
+            return convert_output_spikes_to_class_label(output_spikes)
+        return -1
+
+    def reset_reward(self, t):
+        self.reward[t] = 1.0
+
+
+    # VISUALIZE FUNCTIONS
 
     def visualize_most_spiking_u(self):
         u_matrix_tuple = (
@@ -120,3 +173,20 @@ class SNN:
 
         plt.show()
         plt.close()
+
+    def visualize_learning(self):
+        dt = np.array(self.dts)
+        dw = np.array(self.dws)
+
+        plt.scatter(dt, dw, s=8, c="red")
+        plt.xlim(-50, 50)
+        plt.ylim(-0.005, 0.005)
+        plt.grid()
+        plt.show()
+
+    def visualize_reward(self):
+        tim = np.arange(self.T_max)
+        plt.plot(tim, self.reward, 'g')
+        plt.ylim(0.0, 1.3)
+        plt.xlim(0, 100)
+        plt.show()
