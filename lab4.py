@@ -58,14 +58,14 @@ def simulation2(train_X, train_y, test_X, test_y):
     for epoch in range(epoch_cnt):
         for tt in range(T):
             snn.apply(input_pattern[tt], epoch * T + tt)
-            snn.STDP(0, 1, 1.7, 2.0, 0.3, 0.2, is_visualize=True)
+            snn.STDP(0, 1, 1.7, 2.0, 0.3, 0.2, tt, is_visualize=True)
     snn.visualize_learning()
 
 
 def simulation3(train_X, train_y, test_X, test_y):
     T = 10
     epoch_cnt = len(train_y)
-    snn = SNN(256, 128, 64, 10, u_spike=0.a3, T_max=T * epoch_cnt)
+    snn = SNN(256, 128, 64, 10, u_spike=0.3, T_max=T * epoch_cnt)
     # one epoch -> one image
     for epoch in range(epoch_cnt):
         input_pattern = convert_MNIST_image_to_spikes_in_time(train_X[epoch], T)
@@ -106,6 +106,6 @@ if __name__ == "__main__":
     # print(convert_MNIST_image_to_spikes_in_time(train_X[0], 10))
 
     #simulation1()
-    #simulation2(train_X, train_y, test_X, test_y)
-    simulation3(train_X, train_y, test_X, test_y)
+    simulation2(train_X, train_y, test_X, test_y)
+    #simulation3(train_X, train_y, test_X, test_y)
 
