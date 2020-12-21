@@ -181,6 +181,8 @@ class SNN:
         plt.scatter(dt, dw, s=8, c="red")
         plt.xlim(-50, 50)
         plt.ylim(-0.005, 0.005)
+        plt.xlabel('dt')
+        plt.ylabel('dw')
         plt.grid()
         plt.show()
 

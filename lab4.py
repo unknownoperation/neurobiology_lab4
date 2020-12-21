@@ -106,6 +106,6 @@ if __name__ == "__main__":
     # print(convert_MNIST_image_to_spikes_in_time(train_X[0], 10))
 
     #simulation1()
-    simulation2(train_X, train_y, test_X, test_y)
-    #simulation3(train_X, train_y, test_X, test_y)
+    #simulation2(train_X, train_y, test_X, test_y)
+    simulation3(train_X, train_y, test_X, test_y)
 
