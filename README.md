@@ -11,6 +11,7 @@
 # 2 задание
 Сеть обучается, график STDP правильный:
 
+
 ![example](https://raw.githubusercontent.com/unknownoperation/neurobiology_lab4/master/res/STDP.png)
 
 # 3 задание
